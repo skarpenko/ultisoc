@@ -1,0 +1,3 @@
+[submodule "hw/ultiparc"]
+	path = hw/ultiparc
+	url = https://github.com/skarpenko/ultiparc.git
