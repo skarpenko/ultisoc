@@ -1,0 +1,13 @@
+# UPUART module testbench
+
++define+TRACE_FILE="tb_upuart.vcd"
++timescale+1us/100ns
++incdir+src
+src/upuart_brgen.v
+src/upuart_ctrl.v
+src/upuart_fifo.v
+src/upuart_ocp_if.v
+src/upuart_rx.v
+src/upuart_top.v
+src/upuart_tx.v
+tb/tb_upuart.v
