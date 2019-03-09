@@ -1,0 +1,10 @@
+# Memory top testbench
+
++define+TRACE_FILE="tb_memory_top.vcd"
++define+RAM_IMAGE="tb/tb_memory_ram.hex"
++define+ROM_IMAGE="tb/tb_memory_rom.hex"
++timescale+1us/100ns
+src/memory_top.v
+src/ram_top.v
+src/rom_top.v
+tb/tb_memory_top.v
