@@ -1,0 +1,6 @@
+# OCP2APB FIFO testbench
+
++define+TRACE_FILE="tb_apbocp_fifo.vcd"
++timescale+1us/100ns
+src/apbocp_fifo.v
+tb/tb_apbocp_fifo.v
