@@ -35,7 +35,7 @@
  * ROM
  */
 module rom_top #(
-	parameter MEMWORDS = 1024 /* Memory size (number of data words) */
+	parameter MEMWORDS = 131072 /* Memory size (number of data words) */
 )
 (
 	clk,

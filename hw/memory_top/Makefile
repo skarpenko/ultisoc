@@ -19,7 +19,7 @@ endif
 
 
 # Icarus Verilog flags
-IVFLAGS := -Wall -I$(ULTISOC_HOME)/hw/ultiparc/rtl/include $(EXTRA_IVFLAGS)
+IVFLAGS := -Wall $(EXTRA_IVFLAGS)
 
 
 .PHONY: all
