@@ -1,0 +1,8 @@
+# FPGA ROM testbench
+
++define+TRACE_FILE="tb_rom_top.vcd"
++define+ULTISOC_ROM_IMAGE="tb/tb_rom.hex"
++incdir+${ULTISOC_HOME}/hw/ultiparc/rtl/include
++timescale+1us/100ns
+src/rom_top.v
+tb/tb_rom_top.v
