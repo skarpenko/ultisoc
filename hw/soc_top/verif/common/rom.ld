@@ -42,7 +42,8 @@ MEMORY
 
 SECTIONS
 {
-	.text		0x00000000 : { *(.text .text.*) } > rom
+	.startup	0x00000000 : { *(.startup .startup.*) } > rom
+	.text		ALIGN(0x4) : { *(.text .text.*) } > rom
 	.rodata		ALIGN(0x4) : { *(.rodata .rodata.*) } > rom
 	.rodata1	ALIGN(0x4) : { *(.rodata1) } > rom
 	.sdata2		ALIGN(0x4) : { *(.sdata2 .sdata2.*) } > rom
