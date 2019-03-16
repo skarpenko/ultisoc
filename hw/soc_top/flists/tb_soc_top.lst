@@ -1,6 +1,6 @@
 # SoC top testbench
 
-+define+TRACE_FILE="tb_sys_top.vcd"
++define+TRACE_FILE="tb_soc_top.vcd"
 +define+ROM_IMAGE="verif/rom/simple_rom.hex"
 +define+RAM_IMAGE="verif/ram/simple_ram.hex"
 +incdir+${ULTISOC_HOME}/hw/ultiparc/rtl/include
