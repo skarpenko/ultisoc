@@ -27,7 +27,7 @@
  * SoC info to use in SoC control device
  */
 
-`define SOC_INFO_SOC_VERSION	32'd20190909
+`define SOC_INFO_SOC_VERSION	32'd20190309
 `define SOC_INFO_RAM_BASE	32'h0100_0000
 `define SOC_INFO_RAM_SIZE	32'h80000
 `define SOC_INFO_ROM_SIZE	32'h80000
