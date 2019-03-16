@@ -37,11 +37,20 @@
 #define USOC_UART_DIVD		(USOC_UART_IOBASE + 0x04)	/* Divider register */
 #define USOC_UART_DATA		(USOC_UART_IOBASE + 0x08)	/* Data register */
 #define USOC_UART_FIFO		(USOC_UART_IOBASE + 0x0C)	/* FIFO state register */
+/***/
+#define USOC_UART_CTRL_TX_IM		(1<<0)			/* TX interrupt mask */
+#define USOC_UART_CTRL_TX_FF		(1<<1)			/* TX FIFO full */
+#define USOC_UART_CTRL_TX_FE		(1<<2)			/* TX FIFO empty */
+#define USOC_UART_CTRL_RX_IM		(1<<3)			/* RX interrupt mask */
+#define USOC_UART_CTRL_RX_FF		(1<<4)			/* RX FIFO full */
+#define USOC_UART_CTRL_RX_FE		(1<<5)			/* RX FIFO empty */
+#define USOC_UART_FIFO_TX_COUNT(a)	((a) & 0xFFFF)		/* TX FIFO bytes count */
+#define USOC_UART_FIFO_RX_COUNT(a)	(((a) >> 16) & 0xFFFF)	/* RX FIFO bytes count */
 
 
 /* Control device */
 #define USOC_CTRL_IOBASE	0x80100000			/* Control device I/O base */
-#define USOC_CTRL_SOCVER	(USOC_CTRL_IOBASE + 0x00)	/* SoC version (R/O) */
+#define USOC_CTRL_SOCVER	(USOC_CTRL_IOBASE + 0x000)	/* SoC version (R/O) */
 #define USOC_CTRL_RAMBASE	(USOC_CTRL_IOBASE + 0x004)	/* RAM base address (R/O) */
 #define USOC_CTRL_RAMSIZE	(USOC_CTRL_IOBASE + 0x008)	/* RAM size (R/O) */
 #define USOC_CTRL_ROMSIZE	(USOC_CTRL_IOBASE + 0x00C)	/* ROM size (R/O) */
@@ -54,13 +63,20 @@
 #define USOC_INTCTL_STATUS	(USOC_INTCTL_IOBASE + 0x00)	/* Status register */
 #define USOC_INTCTL_MASK	(USOC_INTCTL_IOBASE + 0x04)	/* Mask register */
 #define USOC_INTCTL_RAW		(USOC_INTCTL_IOBASE + 0x08)	/* Raw interrupts */
+/***/
+#define USOC_INTCTL_TMRINT	(1<<0)				/* Timer interrupt bit */
+#define USOC_INTCTL_UARTINT	(1<<1)				/* UART interrupt bit */
 
 
 /* Interval timer */
 #define USOC_ITIMER_IOBASE	0x80300000			/* Interval timer I/O base */
-#define USOC_ITIMER_CTLREG	(USOC_ITIMER_IOBASE + 0x00)	/* Control register */
+#define USOC_ITIMER_CTRL	(USOC_ITIMER_IOBASE + 0x00)	/* Control register */
 #define USOC_ITIMER_COUNT	(USOC_ITIMER_IOBASE + 0x04)	/* Counter register */
 #define USOC_ITIMER_CURRENT	(USOC_ITIMER_IOBASE + 0x08)	/* Current count value */
+/***/
+#define USOC_ITIMER_CTRL_EN	(1<<0)				/* Enable time */
+#define USOC_ITIMER_CTRL_IM	(1<<1)				/* Interrupt mask */
+#define USOC_ITIMER_CTRL_RL	(1<<2)				/* Reload counter */
 
 
 #endif /* _VERIF_SOC_REGS_H_ */
