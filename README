@@ -1,17 +1,18 @@
     The UltiSoC Project (https://github.com/skarpenko/ultisoc)
 
 
-UltiSoC is a simple System-on-Chip design based on Ultiparc microcontroller.
-However it is capable to run different embedded operating systems and
-applications.
+UltiSoC is a simple System on Chip design based on Ultiparc microcontroller.
+Despite its simplicity it is capable to run different embedded operating systems
+and applications.
 
 
 PREREQUISITES
 
   Here is the list of prerequisites required to play with UltiSoC:
 
-  * FPGA design software. For example Altera Quartus or Xilinx Vivado. It is
-    required for synthesizing UltiSoC for FPGA.
+  * FPGA design software. For example, Altera Quartus or Xilinx Vivado. It is
+    required for synthesizing UltiSoC for FPGA. Check corresponding websites for
+    recent versions.
 
   * GNU C/C++ for MIPS-I ISA (http://gcc.gnu.org/). GNU C/C++ cross-compiler
     is required for building BootROM and software for UltiSoC.
@@ -29,9 +30,55 @@ PREREQUISITES
     for building cycle accurate UltiSoC system model.
 
 
-SUPPORTED FPGA BOARD
+DIRECTORY STRUCTURE
+
+  /
+  |- boot       - system boot ROM.
+  |- fpga       - FPGA synthesis scripts and components.
+  |- hw         - hardware components of SoC.
+  -- setenv.sh  - environment configuration script.
+
+
+SUPPORTED FPGA BOARDS
 
   * Terasic DE0-Nano-SoC Kit/Atlas-SoC Kit (http://de0-nano-soc.terasic.com/)
+
+
+QUICK START GUIDE
+
+  Before start make sure Quartus and MIPS-I GNU C/C++ toolchain installed
+  properly and added to PATH environment variable. To check run:
+
+      $ which mipsisa32-elf-gcc
+      $ which quartus_sh
+
+  these commands should point to the place where tools were installed.
+
+  Clone UltiSoC repository:
+
+      $ git clone https://github.com/skarpenko/ultisoc.git
+
+  Prepare submodules:
+
+      $ cd ultisoc
+      $ git submodule init
+      $ git submodule update
+
+  Setup environment by sourcing setenv.sh shell script:
+
+      $ source setenv.sh
+
+  Run FPGA synthesis for Atlas-SoC development kit:
+
+      $ cd fpga/atlas-soc
+      $ make
+
+  Once synthesis finished connect and power on the board. Program generated
+  ultisoc.sof image to the board:
+
+      $ make prog
+
+  Refer to fpga/atlas-soc/doc/ directory for more details.
 
 
 CONTACTS
