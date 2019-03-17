@@ -1,0 +1,28 @@
+CONNECTING SERIAL CABLE
+-----------------------
+
+In current UltiSoC design serial TxD and RxD lines are routed to GPIO1 pins:
+
+    TxD - GPIO1 Pin  8 (GPIO1[7])
+    RxD - GPIO1 Pin 10 (GPIO1[9])
+    GND - GPIO1 Pin 12
+
+CTS and RTS lines are not used.
+
+Any serial cable which supports 3.3V logic levels can be used for enabling
+UltiSoC serial console. For example, Adafruit USB to TTL Serial Cable.
+
+Adafruit USB to TTL Serial Cable has the following leads:
+
+    BLACK  - GND
+    RED    - Power 5V (NEVER CONNECT THIS!)
+    WHITE  - TxD
+    GREEN  - RxD
+
+Connecting to Atlas-SoC:
+
+    WHITE ---> GPIO1 Pin  8
+    GREEN ---> GPIO1 Pin 10
+    BLACK ---> GPIO1 Pin 12
+
+Refer to adafruit_cable.jpg picture.
