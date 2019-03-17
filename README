@@ -1,1 +1,41 @@
-TBD
+    The UltiSoC Project (https://github.com/skarpenko/ultisoc)
+
+
+UltiSoC is a simple System-on-Chip design based on Ultiparc microcontroller.
+However it is capable to run different embedded operating systems and
+applications.
+
+
+PREREQUISITES
+
+  Here is the list of prerequisites required to play with UltiSoC:
+
+  * FPGA design software. For example Altera Quartus or Xilinx Vivado. It is
+    required for synthesizing UltiSoC for FPGA.
+
+  * GNU C/C++ for MIPS-I ISA (http://gcc.gnu.org/). GNU C/C++ cross-compiler
+    is required for building BootROM and software for UltiSoC.
+
+  Optional:
+
+  * Icarus Verilog v10.0 (http://iverilog.icarus.com/). Verilog simulation
+    tool which is used for running RTL simulation of UltiSoC and its components.
+
+  * GTK Wave (http://gtkwave.sourceforge.net/). GTK+ based wave viewer
+    which could be used for waveforms visualization.
+
+  * Verilator v3.874 (https://www.veripool.org/projects/verilator/). Verilator
+    converts synthesizable Verilog code into C++ or SystemC code. It is required
+    for building cycle accurate UltiSoC system model.
+
+
+SUPPORTED FPGA BOARD
+
+  * Terasic DE0-Nano-SoC Kit/Atlas-SoC Kit (http://de0-nano-soc.terasic.com/)
+
+
+CONTACTS
+
+  Stepan Karpenko
+  e-mail (1): carp@mail.ru
+  e-mail (2): stepan.karpenko@gmail.com
