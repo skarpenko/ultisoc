@@ -24,69 +24,88 @@
  */
 
 /*
- * Global BootROM data structure
+ * Console
  */
 
-#ifndef _BOOTROM_GLOBAL_H_
-#define _BOOTROM_GLOBAL_H_
-
-#include <arch.h>
+#ifndef _BOOTROM_CON_H_
+#define _BOOTROM_CON_H_
 
 
-/* Console specific data */
-struct console_data {
-	unsigned flags;
-};
+/* Init console */
+void con_init();
+
+/* Set console flags */
+void con_set_flags(unsigned flags);
+
+/* Get console flags */
+unsigned con_get_flags();
+
+/* Console flags */
+#define CON_FLAGS_NONE		(0x0)	/* No flags */
+#define CON_FLAGS_ECHO		(0X1)	/* Echo */
 
 
-/* BootROM data */
-struct global {
-	struct console_data con;
-};
+/*
+ * Get char
+ * Return value depends on flags
+ */
+int con_getc_ex(unsigned flags);
+
+/* con_getc_ex() flags */
+#define CON_GETC_EX_F_NONE	(0x0)	/* No flags */
+#define CON_GETC_EX_F_BLOCK	(0x1)	/* Block until character received */
 
 
-/* Set pointer to global data */
+/* Get char
+ * Returns either 8-bit char or -1.
+ */
 static inline
-void global_set(struct global* ptr)
+int con_getc()
 {
-	__asm__ __volatile__ (
-		".set push             ;"
-		".set noreorder        ;"
-		"move $gp, %0          ;"	/* use GP */
-		".set pop              ;"
-		:
-		: "r" (ptr)
-		:
-	);
+	return con_getc_ex(CON_GETC_EX_F_NONE);
 }
 
 
-/* Get global data pointer */
+/* Get char
+ * Blocks if no characters available.
+ */
 static inline
-struct global* global_get()
+char con_getc_b()
 {
-	unsigned long g;
-	__asm__ __volatile__ (
-		".set push       ;"
-		".set noreorder  ;"
-		"move %0, $gp    ;"
-		".set pop        ;"
-		: "=r" (g)
-		:
-		:
-	);
-	return (struct global*)g;
+	return (char)con_getc_ex(CON_GETC_EX_F_BLOCK);
 }
 
 
-/* Define global data structure */
-#define DEFINE_GLOBAL_DATA(__name)	\
-	struct global __name;		\
-	global_set(&__name)
+/* Put char */
+void con_putc(char ch);
 
 
-/* Alias for global_get() */
-#define G() global_get()
+/* Put string */
+void con_puts(const char* str);
 
 
-#endif /* _BOOTROM_GLOBAL_H_ */
+/* Print string */
+void cprint_str(const char *str);
+
+
+/* Print HEX value */
+void cprint_hex(unsigned hex);
+
+
+/* Print integer value */
+void cprint_int(int v);
+
+
+/* Print unsigned value */
+void cprint_uint(unsigned v);
+
+
+/* Print 64-bit integer value */
+void cprint_int64(long long v);
+
+
+/* Print 64-bit unsigned value */
+void cprint_uint64(unsigned long long v);
+
+
+#endif /* _BOOTROM_CON_H_ */

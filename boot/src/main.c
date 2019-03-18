@@ -30,21 +30,70 @@
 #include <arch.h>
 #include <global.h>
 #include <uart.h>
+#include <con.h>
+#include <soc_info.h>
+
+
+void print_welcome();
+void print_soc_info();
 
 
 void boot_entry()
 {
-	DEFINE_GLOBAL_DATA(global_data);
+	DEFINE_GLOBAL_DATA(global_data);	/* BootROM data */
 
+	/* Init serial console */
 	uart_init();
+	con_init();
 
-	uart_put_char('A');
-	uart_put_char('B');
-	uart_put_char('C');
-	uart_put_char('D');
+	/* Welcome messages */
+	print_welcome();
+	print_soc_info();
 
 	/*TBD*/
 
-	while(1)
-		;
+	con_set_flags(CON_FLAGS_ECHO);
+
+	while(1) {
+		char ch = con_getc_b();
+		if(ch == 'r') break;
+	}
+}
+
+
+void print_welcome()
+{
+	const char *welcome =
+		"\n         __    __\n"
+		"/  \\||_.(_  _ /\n"
+		"\\__/||_|__)(_)\\____\n"
+		"|__) _  _ |_|__)/  \\|\\/|\n"
+		"|__)(_)(_)|_| \\ \\__/|  |\n";
+
+	con_puts(welcome);
+	con_puts("(Build: " __TIMESTAMP__ ")\n");
+}
+
+
+void print_soc_info()
+{
+	unsigned cpuid = soc_cpuid();
+	addr_t rom_start = soc_rom_base();
+	addr_t rom_end = rom_start + soc_rom_size() - 1;
+	addr_t ram_start = soc_ram_base();
+	addr_t ram_end = ram_start + soc_ram_size() - 1;
+	unsigned sys_freq = soc_sys_freq();
+	unsigned soc_ver = soc_version();
+
+	cprint_str("\n");
+	cprint_str("CPU Id   : "); cprint_hex(cpuid); cprint_str("\n");
+	cprint_str("SoC ver. : "); cprint_int(soc_ver); cprint_str("\n");
+	cprint_str("Sys.freq.: "); cprint_int(sys_freq); cprint_str("Hz\n");
+	cprint_str("ROM      : [0x");
+		cprint_hex(rom_start); cprint_str("-0x"); cprint_hex(rom_end);
+		cprint_str("]\n");
+	cprint_str("RAM      : [0x");
+		cprint_hex(ram_start); cprint_str("-0x"); cprint_hex(ram_end);
+		cprint_str("]\n");
+	cprint_str("\n");
 }

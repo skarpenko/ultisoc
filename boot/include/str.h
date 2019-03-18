@@ -24,69 +24,13 @@
  */
 
 /*
- * Global BootROM data structure
+ * String handling routines
  */
 
-#ifndef _BOOTROM_GLOBAL_H_
-#define _BOOTROM_GLOBAL_H_
-
-#include <arch.h>
+#ifndef _BOOTROM_STR_H_
+#define _BOOTROM_STR_H_
 
 
-/* Console specific data */
-struct console_data {
-	unsigned flags;
-};
 
 
-/* BootROM data */
-struct global {
-	struct console_data con;
-};
-
-
-/* Set pointer to global data */
-static inline
-void global_set(struct global* ptr)
-{
-	__asm__ __volatile__ (
-		".set push             ;"
-		".set noreorder        ;"
-		"move $gp, %0          ;"	/* use GP */
-		".set pop              ;"
-		:
-		: "r" (ptr)
-		:
-	);
-}
-
-
-/* Get global data pointer */
-static inline
-struct global* global_get()
-{
-	unsigned long g;
-	__asm__ __volatile__ (
-		".set push       ;"
-		".set noreorder  ;"
-		"move %0, $gp    ;"
-		".set pop        ;"
-		: "=r" (g)
-		:
-		:
-	);
-	return (struct global*)g;
-}
-
-
-/* Define global data structure */
-#define DEFINE_GLOBAL_DATA(__name)	\
-	struct global __name;		\
-	global_set(&__name)
-
-
-/* Alias for global_get() */
-#define G() global_get()
-
-
-#endif /* _BOOTROM_GLOBAL_H_ */
+#endif /* _BOOTROM_STR_H_ */

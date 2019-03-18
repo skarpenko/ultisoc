@@ -18,7 +18,9 @@ target-dump := usoc_rom.dump
 c-files :=		\
 	main.c		\
 	except.c	\
-	uart.c
+	uart.c		\
+	con.c		\
+	str.c
 
 
 # Assembly source files

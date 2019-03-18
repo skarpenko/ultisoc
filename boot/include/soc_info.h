@@ -24,69 +24,82 @@
  */
 
 /*
- * Global BootROM data structure
+ * SoC info
  */
 
-#ifndef _BOOTROM_GLOBAL_H_
-#define _BOOTROM_GLOBAL_H_
+#ifndef _BOOTROM_SOC_INFO_H_
+#define _BOOTROM_SOC_INFO_H_
 
 #include <arch.h>
+#include <soc_regs.h>
 
 
-/* Console specific data */
-struct console_data {
-	unsigned flags;
-};
-
-
-/* BootROM data */
-struct global {
-	struct console_data con;
-};
-
-
-/* Set pointer to global data */
+/* Returns CPU Id value */
 static inline
-void global_set(struct global* ptr)
+unsigned soc_cpuid()
 {
+	u32 v;
 	__asm__ __volatile__ (
-		".set push             ;"
-		".set noreorder        ;"
-		"move $gp, %0          ;"	/* use GP */
-		".set pop              ;"
-		:
-		: "r" (ptr)
-		:
-	);
-}
-
-
-/* Get global data pointer */
-static inline
-struct global* global_get()
-{
-	unsigned long g;
-	__asm__ __volatile__ (
-		".set push       ;"
-		".set noreorder  ;"
-		"move %0, $gp    ;"
-		".set pop        ;"
-		: "=r" (g)
+		".set push         ;"
+		".set noreorder    ;"
+		"mfc0 %0, $15      ;"
+		".set pop          ;"
+		: "=r" (v)
 		:
 		:
 	);
-	return (struct global*)g;
+
+	return v;
+
 }
 
 
-/* Define global data structure */
-#define DEFINE_GLOBAL_DATA(__name)	\
-	struct global __name;		\
-	global_set(&__name)
+/* Returns ROM base address */
+static inline
+addr_t soc_rom_base()
+{
+	return 0x00000000;	/* Always zero */
+}
 
 
-/* Alias for global_get() */
-#define G() global_get()
+/* Returns ROM size */
+static inline
+addr_t soc_rom_size()
+{
+	return readl(USOC_CTRL_ROMSIZE);
+}
 
 
-#endif /* _BOOTROM_GLOBAL_H_ */
+/* Returns RAM base address */
+static inline
+addr_t soc_ram_base()
+{
+	return readl(USOC_CTRL_RAMBASE);
+}
+
+
+/* Returns RAM size */
+static inline
+addr_t soc_ram_size()
+{
+	return readl(USOC_CTRL_RAMSIZE);
+}
+
+
+/* Returns system frequency */
+static inline
+unsigned soc_sys_freq()
+{
+	return readl(USOC_CTRL_SYSFREQ);
+}
+
+
+/* Returns SoC version */
+static inline
+unsigned soc_version()
+{
+	return readl(USOC_CTRL_SOCVER);
+}
+
+
+#endif /* _BOOTROM_SOC_INFO_H_ */
