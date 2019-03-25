@@ -30,12 +30,19 @@
 #ifndef _BOOTROM_GLOBAL_H_
 #define _BOOTROM_GLOBAL_H_
 
+#include <stddef.h>
+#include <config.h>
 #include <arch.h>
 
 
 /* Console specific data */
 struct console_data {
 	unsigned flags;
+	char iobuf[CONFIG_CONIOBUF_SZ];		/* User input */
+	size_t nc;				/* Number of characters buffered */
+	size_t cur;				/* Cursor position */
+	char esc[4];				/* Escape sequence buffer */
+	size_t nesc;				/* Number of received ESC chars */
 };
 
 

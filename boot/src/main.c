@@ -27,20 +27,26 @@
  * BootROM entry
  */
 
+#include <stddef.h>
 #include <arch.h>
 #include <global.h>
 #include <uart.h>
 #include <con.h>
+#include <str.h>
 #include <soc_info.h>
+#include <cmd.h>
+#include <cmd_types.h>
 
 
-void print_welcome();
-void print_soc_info();
+static void print_welcome();
+static void print_soc_info();
 
 
 void boot_entry()
 {
 	DEFINE_GLOBAL_DATA(global_data);	/* BootROM data */
+
+	memset(&global_data, 0, sizeof(global_data));
 
 	/* Init serial console */
 	uart_init();
@@ -50,18 +56,25 @@ void boot_entry()
 	print_welcome();
 	print_soc_info();
 
-	/*TBD*/
+	cprint_str("Type 'h' for help.\n\n");
 
-	con_set_flags(CON_FLAGS_ECHO);
+	cmd_run("echo");
 
 	while(1) {
-		char ch = con_getc_b();
-		if(ch == 'r') break;
+		char *buf;
+
+		cprint_str("$ ");
+
+		buf = con_get_iobuf();
+		cprint_str("\n");
+
+		if(cmd_run(G()->con.iobuf) == CMD_ENENT)
+			cprint_str("Unknown command.\n");
 	}
 }
 
 
-void print_welcome()
+static void print_welcome()
 {
 	const char *welcome =
 		"\n         __    __\n"
@@ -75,7 +88,7 @@ void print_welcome()
 }
 
 
-void print_soc_info()
+static void print_soc_info()
 {
 	unsigned cpuid = soc_cpuid();
 	addr_t rom_start = soc_rom_base();
@@ -97,3 +110,59 @@ void print_soc_info()
 		cprint_str("]\n");
 	cprint_str("\n");
 }
+
+
+/* Help command */
+static int cmd_help(struct cmd_args *args)
+{
+	extern struct cmd __CMD_TABLE_BEGIN;
+	extern struct cmd __CMD_TABLE_END;
+	struct cmd *it;
+	size_t fw = 0;	/* Field width */
+
+	for(it = &__CMD_TABLE_BEGIN; it < &__CMD_TABLE_END; ++it) {
+		size_t f = strlen(it->hint);
+		fw = (f > fw ? f + 1 : fw);
+	}
+
+	for(it = &__CMD_TABLE_BEGIN; it < &__CMD_TABLE_END; ++it) {
+		if(it->help && it->hint) {
+			cprint_strf(it->hint, fw);
+			cprint_str(" - ");
+			cprint_str(it->help);
+			cprint_str("\n");
+		}
+	}
+
+	return 0;
+}
+COMMAND(a0help, "help", "help", "this help screen. Shortcut: 'h'", cmd_help);
+COMMAND(a0help0, "h", NULL, NULL, cmd_help);	/* Shortcut */
+
+
+/* Echo command */
+static int cmd_echo(struct cmd_args *args)
+{
+	int e;
+
+	if(args->n != 1) {
+		if(!strcmp(args->args[1], "on")) {
+			con_set_flags(con_get_flags() | CON_FLAGS_ECHO);
+		} else if(!strcmp(args->args[1], "off")) {
+			con_set_flags(con_get_flags() & ~CON_FLAGS_ECHO);
+		} else {
+			cprint_str("Unknown argument: ");
+			cprint_str(args->args[1]);
+			cprint_str("\n");
+			return -1;
+		}
+	}
+
+	e = (con_get_flags() & CON_FLAGS_ECHO);
+	cprint_str("Echo is ");
+	cprint_str(e ? "on" : "off");
+	cprint_str("\n");
+
+	return 0;
+}
+COMMAND(a1echo, "echo", "echo [on|off]", "console echo control", cmd_echo);

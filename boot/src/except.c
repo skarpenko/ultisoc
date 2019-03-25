@@ -27,7 +27,9 @@
  * Exceptions handler
  */
 
+#include <stddef.h>
 #include <arch.h>
+#include <con.h>
 
 
 void interrupt_entry(struct interrupt_frame *p)

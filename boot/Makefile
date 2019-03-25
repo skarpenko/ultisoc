@@ -20,7 +20,10 @@ c-files :=		\
 	except.c	\
 	uart.c		\
 	con.c		\
-	str.c
+	str.c		\
+	cmd.c		\
+	disasm.c	\
+	dis.c
 
 
 # Assembly source files
