@@ -29,6 +29,7 @@
 
 #include <global.h>
 #include <uart.h>
+#include <str.h>
 #include <con.h>
 
 
@@ -50,12 +51,21 @@ unsigned con_get_flags()
 }
 
 
-int con_getc_ex(unsigned flags)
+static int __con_getc_ex(unsigned flags)
 {
 	int ch;
+
 	do {
 		ch = uart_get_char();
 	} while((flags & CON_GETC_EX_F_BLOCK) && ch < 0);
+
+	return ch;
+}
+
+
+int con_getc_ex(unsigned flags)
+{
+	int ch = __con_getc_ex(flags);
 
 	if((ch >= 0) && (con_get_flags() & CON_FLAGS_ECHO))
 		con_putc(ch);
@@ -78,6 +88,168 @@ void con_puts(const char* str)
 		con_putc(*str);
 		++str;
 	}
+}
+
+
+static inline void reset_esc_seq()
+{
+	struct console_data *cd = &G()->con;
+	cd->nesc = 0;
+}
+
+static void flush_esc_seq()
+{
+	struct console_data *cd = &G()->con;
+
+	if(con_get_flags() & CON_FLAGS_ECHO) {
+		size_t i;
+		for(i = 0; i < cd->nesc; ++i)
+			uart_put_char(cd->esc[i]);
+	}
+	reset_esc_seq();
+}
+
+static int buf_del_char()
+{
+	struct console_data *cd = &G()->con;
+
+	if(!cd->nc || cd->nc == cd->cur)
+		return -1;
+
+	memmove(&cd->iobuf[cd->cur], &cd->iobuf[cd->cur + 1], cd->nc - cd->cur);
+
+	--cd->nc;
+
+	return 0;
+}
+
+static int buf_cur_l()
+{
+	struct console_data *cd = &G()->con;
+
+	if(!cd->nc || !cd->cur)
+		return -1;
+
+	--cd->cur;
+
+	return 0;
+}
+
+static int buf_cur_r()
+{
+	struct console_data *cd = &G()->con;
+
+	if(!cd->nc || cd->cur == cd->nc)
+		return -1;
+
+	++cd->cur;
+
+	return 0;
+}
+
+static int buf_bcksp()
+{
+	struct console_data *cd = &G()->con;
+
+	if(!cd->nc || !cd->cur)
+		return -1;
+
+	if(cd->nc != cd->cur)
+		memmove(&cd->iobuf[cd->cur - 1], &cd->iobuf[cd->cur], cd->nc - cd->cur);
+
+	--cd->nc;
+	--cd->cur;
+
+	return 0;
+}
+
+static int buf_insert(char ch)
+{
+	struct console_data *cd = &G()->con;
+
+	if(cd->nc == CONFIG_CONIOBUF_SZ - 1)
+		return -1;
+
+	if(cd->nc != cd->cur) {
+		memmove(&cd->iobuf[cd->cur + 1], &cd->iobuf[cd->cur], cd->nc - cd->cur);
+		cd->nesc = 0;
+		cd->esc[cd->nesc++] = 27;
+		cd->esc[cd->nesc++] = '[';
+		cd->esc[cd->nesc++] = '1';
+		cd->esc[cd->nesc++] = '@';
+	}
+
+	cd->iobuf[cd->cur] = ch;
+	++cd->nc;
+	++cd->cur;
+
+	return 0;
+}
+
+char *con_get_iobuf()
+{
+	struct console_data *cd = &G()->con;
+	int echo = (con_get_flags() & CON_FLAGS_ECHO);
+	int ch;
+
+	while((ch = __con_getc_ex(CON_GETC_EX_F_BLOCK)) != 0xD) {
+		int ret = -1;
+
+		/* ESC sequence */
+		if(ch == 27) {						/* ESC */
+			cd->nesc = 0;
+			cd->esc[cd->nesc++] = (char)ch;
+		} else if(cd->nesc) {
+			if(ch == '[' && cd->nesc == 1) {
+				cd->esc[cd->nesc++] = (char)ch;
+			} else if(ch == '3' && cd->nesc == 2) {
+				cd->esc[cd->nesc++] = (char)ch;
+			} else if(ch == '~' && cd->nesc == 3) {		/* DEL */
+				cd->esc[cd->nesc++] = (char)ch;
+/*
+		cd->nesc = 0;
+		cd->esc[cd->nesc++] = 27;
+		cd->esc[cd->nesc++] = '[';
+		cd->esc[cd->nesc++] = '1';
+		cd->esc[cd->nesc++] = 'P';
+
+ */
+				if(buf_del_char() < 0)
+					reset_esc_seq();
+				else
+					flush_esc_seq();
+			} else if(ch == 'D') {				/* <--- */
+				cd->esc[cd->nesc++] = (char)ch;
+				if(buf_cur_l() < 0)
+					reset_esc_seq();
+				else
+					flush_esc_seq();
+			} else if(ch == 'C') {				/* ---> */
+				cd->esc[cd->nesc++] = (char)ch;
+				if(buf_cur_r() < 0)
+					reset_esc_seq();
+				else
+					flush_esc_seq();
+			} else {
+				reset_esc_seq();
+			}
+		} else if(ch == 127) {					/* BACKSPACE */
+			ret = buf_bcksp();
+		} else {
+			ret = buf_insert((char)ch);
+			flush_esc_seq();
+		}
+
+		if(echo && ret == 0)
+			uart_put_char((char)ch);
+	}
+
+	cd->iobuf[cd->nc] = 0;
+	cd->nc = 0;
+	cd->nesc = 0;
+	cd->cur = 0;
+
+	return cd->iobuf;
 }
 
 
@@ -179,4 +351,17 @@ void cprint_uint64(unsigned long long v)
 		if(f) con_putc('0' + d);
 	}
 	con_putc('0' + v);
+}
+
+
+void cprint_strf(const char *str, size_t w)
+{
+	if(w && str) {
+		unsigned i, c;
+		for(c = 0, i = 0; i < w; ++i)
+			if(str[c])
+				con_putc(str[c++]);
+			else
+				con_putc(' ');
+	}
 }

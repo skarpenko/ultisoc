@@ -31,6 +31,9 @@
 #define _BOOTROM_CON_H_
 
 
+#include <stddef.h>
+
+
 /* Init console */
 void con_init();
 
@@ -84,6 +87,18 @@ void con_putc(char ch);
 void con_puts(const char* str);
 
 
+/* Print char */
+static inline
+void cprint_char(char ch)
+{
+	con_putc(ch);
+}
+
+
+/* Receive input buffer */
+char *con_get_iobuf();
+
+
 /* Print string */
 void cprint_str(const char *str);
 
@@ -106,6 +121,10 @@ void cprint_int64(long long v);
 
 /* Print 64-bit unsigned value */
 void cprint_uint64(unsigned long long v);
+
+
+/* Print string field of specified width */
+void cprint_strf(const char *str, size_t w);
 
 
 #endif /* _BOOTROM_CON_H_ */
