@@ -36,8 +36,8 @@
 .globl __reset
 /********************************* Reset Vector *******************************/
 __reset:
-	j __entry	/* Jump to program entry point */
-	nop
+	j __entry		/* Jump to program entry point */
+	mtc0 $zero, $SR		/* Disable interrupts */
 /*********************************** Bus Error ********************************/
 __bus_error_exception:
 	j __exception_entry
@@ -69,10 +69,6 @@ __hardware_interrupt:
 
 /********************************** ENTRY POINT *******************************/
 __entry:
-	/* Disable interrupts */
-	mtc0 $zero, $SR
-	nop
-
 	/* Restore Interrupt Vectors Table pointer */
 	mtc0 $zero, $IVTB
 
@@ -82,7 +78,7 @@ __entry:
 	li $t1, USOC_CTRL_RAMSIZE
 	lw $t1, ($t1)
 	nop
-	addu $sp, $t0, $t1
+	addu $sp, $t0, $t1	/* Set stack top */
 
 	/* Pass control to boot entry */
 	/* void boot_entry() */
@@ -167,6 +163,7 @@ __exception_entry:
 	.extern interrupt_entry
 	jal interrupt_entry
 	nop
-	/* Jump to reset */
+
+	/* No plans for recover - jump to reset */
 	j __reset
 	rfe
