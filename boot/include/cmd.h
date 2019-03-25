@@ -24,7 +24,7 @@
  */
 
 /*
- * User command handling
+ * Command handling
  */
 
 #ifndef _BOOTROM_CMD_H_

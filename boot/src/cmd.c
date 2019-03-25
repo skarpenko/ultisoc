@@ -24,7 +24,7 @@
  */
 
 /*
- * User command handling
+ * Command handling
  */
 
 #include <stddef.h>

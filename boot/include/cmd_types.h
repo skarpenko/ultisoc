@@ -24,7 +24,7 @@
  */
 
 /*
- * User command handling data structures
+ * Command handling data structures
  */
 
 #ifndef _BOOTROM_CMD_TYPES_H_
