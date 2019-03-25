@@ -46,6 +46,11 @@ SECTIONS
 	.text		ALIGN(0x4) : { *(.text .text.*) } > rom
 	.rodata		ALIGN(0x4) : { *(.rodata .rodata.*) } > rom
 	.rodata1	ALIGN(0x4) : { *(.rodata1) } > rom
+	.cmd_table	ALIGN(0x4) : {
+		__CMD_TABLE_BEGIN = ABSOLUTE(.);
+		KEEP(*(SORT(.cmd_table*)))
+		__CMD_TABLE_END = ABSOLUTE(.);
+	} > rom
 
 	/DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.reginfo) }
 }
