@@ -172,6 +172,7 @@ static int buf_insert(char ch)
 
 	if(cd->nc != cd->cur) {
 		memmove(&cd->iobuf[cd->cur + 1], &cd->iobuf[cd->cur], cd->nc - cd->cur);
+		/* Send insert sequence */
 		cd->nesc = 0;
 		cd->esc[cd->nesc++] = 27;
 		cd->esc[cd->nesc++] = '[';
@@ -205,15 +206,13 @@ char *con_get_iobuf()
 			} else if(ch == '3' && cd->nesc == 2) {
 				cd->esc[cd->nesc++] = (char)ch;
 			} else if(ch == '~' && cd->nesc == 3) {		/* DEL */
-				cd->esc[cd->nesc++] = (char)ch;
-/*
-		cd->nesc = 0;
-		cd->esc[cd->nesc++] = 27;
-		cd->esc[cd->nesc++] = '[';
-		cd->esc[cd->nesc++] = '1';
-		cd->esc[cd->nesc++] = 'P';
+				/* Send delete sequence */
+				cd->nesc = 0;
+				cd->esc[cd->nesc++] = 27;
+				cd->esc[cd->nesc++] = '[';
+				cd->esc[cd->nesc++] = '1';
+				cd->esc[cd->nesc++] = 'P';
 
- */
 				if(buf_del_char() < 0)
 					reset_esc_seq();
 				else
@@ -262,17 +261,21 @@ void cprint_str(const char *str)
 }
 
 
-void cprint_hex(unsigned hex)
+void cprint_hex(unsigned hex, size_t nn)
 {
 	const static char h[] = "0123456789ABCDEF";
-	con_putc(h[(hex & 0xF0000000)>>28]);
-	con_putc(h[(hex & 0x0F000000)>>24]);
-	con_putc(h[(hex & 0x00F00000)>>20]);
-	con_putc(h[(hex & 0x000F0000)>>16]);
-	con_putc(h[(hex & 0x0000F000)>>12]);
-	con_putc(h[(hex & 0x00000F00)>>8]);
-	con_putc(h[(hex & 0x000000F0)>>4]);
-	con_putc(h[(hex & 0x0000000F)>>0]);
+	switch(nn) {
+		default:
+		case 8: con_putc(h[(hex & 0xF0000000)>>28]);
+		case 7: con_putc(h[(hex & 0x0F000000)>>24]);
+		case 6: con_putc(h[(hex & 0x00F00000)>>20]);
+		case 5: con_putc(h[(hex & 0x000F0000)>>16]);
+		case 4: con_putc(h[(hex & 0x0000F000)>>12]);
+		case 3: con_putc(h[(hex & 0x00000F00)>>8]);
+		case 2: con_putc(h[(hex & 0x000000F0)>>4]);
+		case 1: con_putc(h[(hex & 0x0000000F)>>0]);
+		case 0: ;
+	}
 }
 
 

@@ -104,7 +104,25 @@ void cprint_str(const char *str);
 
 
 /* Print HEX value */
-void cprint_hex(unsigned hex);
+void cprint_hex(unsigned hex, size_t nn);
+
+static inline
+void cprint_hex32(unsigned hex)
+{
+	cprint_hex(hex, 8);
+}
+
+static inline
+void cprint_hex16(unsigned hex)
+{
+	cprint_hex(hex, 4);
+}
+
+static inline
+void cprint_hex8(unsigned hex)
+{
+	cprint_hex(hex, 2);
+}
 
 
 /* Print integer value */
