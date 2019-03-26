@@ -52,6 +52,8 @@ void boot_entry()
 	uart_init();
 	con_init();
 
+	con_set_flags(CON_FLAGS_ECHO);	/* Enable echo by default */
+
 	/* Welcome messages */
 	print_welcome();
 	print_soc_info();
@@ -68,7 +70,7 @@ void boot_entry()
 		buf = con_get_iobuf();
 		cprint_str("\n");
 
-		if(cmd_run(G()->con.iobuf) == CMD_ENENT)
+		if(cmd_run(buf) == CMD_ENENT)
 			cprint_str("Unknown command.\n");
 	}
 }
@@ -99,14 +101,14 @@ static void print_soc_info()
 	unsigned soc_ver = soc_version();
 
 	cprint_str("\n");
-	cprint_str("CPU Id   : "); cprint_hex(cpuid); cprint_str("\n");
+	cprint_str("CPU Id   : "); cprint_hex32(cpuid); cprint_str("\n");
 	cprint_str("SoC ver. : "); cprint_int(soc_ver); cprint_str("\n");
 	cprint_str("Sys.freq.: "); cprint_int(sys_freq); cprint_str("Hz\n");
 	cprint_str("ROM      : [0x");
-		cprint_hex(rom_start); cprint_str("-0x"); cprint_hex(rom_end);
+		cprint_hex32(rom_start); cprint_str("-0x"); cprint_hex32(rom_end);
 		cprint_str("]\n");
 	cprint_str("RAM      : [0x");
-		cprint_hex(ram_start); cprint_str("-0x"); cprint_hex(ram_end);
+		cprint_hex32(ram_start); cprint_str("-0x"); cprint_hex32(ram_end);
 		cprint_str("]\n");
 	cprint_str("\n");
 }
@@ -166,3 +168,12 @@ static int cmd_echo(struct cmd_args *args)
 	return 0;
 }
 COMMAND(a1echo, "echo", "echo [on|off]", "console echo control", cmd_echo);
+
+
+/* Print SoC info  */
+static int cmd_soc_info(struct cmd_args *args)
+{
+	print_soc_info();
+	return 0;
+}
+COMMAND(a2socinf, "socinf", "socinf", "print SoC details", cmd_soc_info);

@@ -569,7 +569,7 @@ static int disasm_bltz(u32 instr, u32 addr)
 	cprint_strf("bltz", IFLDW);
 	cprint_str(disasm_gprs[iw.r.rs]);
 	cprint_str(", ");
-	cprint_hex(addr + 4 + target);
+	cprint_hex32(addr + 4 + target);
 
 	return 0;
 }
@@ -586,7 +586,7 @@ static int disasm_bgez(u32 instr, u32 addr)
 	cprint_strf("bgez", IFLDW);
 	cprint_str(disasm_gprs[iw.r.rs]);
 	cprint_str(", ");
-	cprint_hex(addr + 4 + target);
+	cprint_hex32(addr + 4 + target);
 
 	return 0;
 }
@@ -603,7 +603,7 @@ static int disasm_bltzal(u32 instr, u32 addr)
 	cprint_strf("bltzal", IFLDW);
 	cprint_str(disasm_gprs[iw.r.rs]);
 	cprint_str(", ");
-	cprint_hex(addr + 4 + target);
+	cprint_hex32(addr + 4 + target);
 
 	return 0;
 }
@@ -620,7 +620,7 @@ static int disasm_bgezal(u32 instr, u32 addr)
 	cprint_strf("bgezal", IFLDW);
 	cprint_str(disasm_gprs[iw.r.rs]);
 	cprint_str(", ");
-	cprint_hex(addr + 4 + target);
+	cprint_hex32(addr + 4 + target);
 
 	return 0;
 }
@@ -636,7 +636,7 @@ static int disasm_j(u32 instr, u32 addr)
 	target = ((addr + 4) & 0xF0000000) | target << 2;
 
 	cprint_strf("j", IFLDW);
-	cprint_hex(target);
+	cprint_hex32(target);
 
 	return 0;
 }
@@ -652,7 +652,7 @@ static int disasm_jal(u32 instr, u32 addr)
 	target = ((addr + 4) & 0xF0000000) | target << 2;
 
 	cprint_strf("jal", IFLDW);
-	cprint_hex(target);
+	cprint_hex32(target);
 
 	return 0;
 }
@@ -671,7 +671,7 @@ static int disasm_beq(u32 instr, u32 addr)
 	cprint_str(", ");
 	cprint_str(disasm_gprs[iw.r.rt]);
 	cprint_str(", ");
-	cprint_hex(addr + 4 + target);
+	cprint_hex32(addr + 4 + target);
 
 	return 0;
 }
@@ -690,7 +690,7 @@ static int disasm_bne(u32 instr, u32 addr)
 	cprint_str(", ");
 	cprint_str(disasm_gprs[iw.r.rt]);
 	cprint_str(", ");
-	cprint_hex(addr + 4 + target);
+	cprint_hex32(addr + 4 + target);
 
 	return 0;
 }
@@ -710,7 +710,7 @@ static int disasm_blez(u32 instr, u32 addr)
 	cprint_strf("blez", IFLDW);
 	cprint_str(disasm_gprs[iw.r.rs]);
 	cprint_str(", ");
-	cprint_hex(addr + 4 + target);
+	cprint_hex32(addr + 4 + target);
 
 	return 0;
 }
@@ -730,7 +730,7 @@ static int disasm_bgtz(u32 instr, u32 addr)
 	cprint_strf("bgtz", IFLDW);
 	cprint_str(disasm_gprs[iw.r.rs]);
 	cprint_str(", ");
-	cprint_hex(addr + 4 + target);
+	cprint_hex32(addr + 4 + target);
 
 	return 0;
 }
@@ -825,7 +825,7 @@ static int disasm_andi(u32 instr)
 	cprint_str(", ");
 	cprint_str(disasm_gprs[iw.r.rs]);
 	cprint_str(", 0x");
-	cprint_hex(imm);
+	cprint_hex32(imm);
 
 	return 0;
 }
@@ -844,7 +844,7 @@ static int disasm_ori(u32 instr)
 	cprint_str(", ");
 	cprint_str(disasm_gprs[iw.r.rs]);
 	cprint_str(", 0x");
-	cprint_hex(imm);
+	cprint_hex32(imm);
 
 	return 0;
 }
@@ -863,7 +863,7 @@ static int disasm_xori(u32 instr)
 	cprint_str(", ");
 	cprint_str(disasm_gprs[iw.r.rs]);
 	cprint_str(", 0x");
-	cprint_hex(imm);
+	cprint_hex32(imm);
 
 	return 0;
 }
@@ -880,7 +880,7 @@ static int disasm_lui(u32 instr)
 	cprint_strf("lui", IFLDW);
 	cprint_str(disasm_gprs[iw.r.rt]);
 	cprint_str(", 0x");
-	cprint_hex(iw.i.imm);
+	cprint_hex32(iw.i.imm);
 
 	return 0;
 }
@@ -1372,8 +1372,8 @@ void disasm(void *ptr, unsigned n)
 		return;
 
 	for (i = 0; i < n; ++i, addr += 4) {
-		cprint_hex(addr); cprint_strf(":", 6);
-		cprint_hex(prog[i]); cprint_strf("", 6);
+		cprint_hex32(addr); cprint_strf(":", 6);
+		cprint_hex32(prog[i]); cprint_strf("", 6);
 		disasm_instr(prog[i], addr);
 		cprint_str("\n");
 	}

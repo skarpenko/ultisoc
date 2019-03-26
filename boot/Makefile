@@ -23,7 +23,11 @@ c-files :=		\
 	str.c		\
 	cmd.c		\
 	disasm.c	\
-	dis.c
+	dis.c		\
+	ctype.c		\
+	exc.c		\
+	reset.c		\
+	mem.c
 
 
 # Assembly source files

@@ -47,6 +47,7 @@ static int cmd_dis(struct cmd_args *args)
 		return -1;
 	}
 
+	/* Parse address */
 	if(str2u(args->args[1], &addr) < 0) {
 		cprint_str("Invalid argument: ");
 		cprint_str(args->args[1]);
@@ -54,6 +55,7 @@ static int cmd_dis(struct cmd_args *args)
 		return -1;
 	}
 
+	/* Parse instructions number */
 	if(str2u(args->args[2], &inum) < 0) {
 		cprint_str("Invalid argument: ");
 		cprint_str(args->args[2]);
@@ -64,6 +66,7 @@ static int cmd_dis(struct cmd_args *args)
 	if(!inum)
 		return 0;
 
+	/* Parse instructions per page if specified */
 	if(args->n > 3) {
 		if(str2u(args->args[3], &pp) < 0) {
 			cprint_str("Invalid argument: ");
@@ -78,17 +81,54 @@ static int cmd_dis(struct cmd_args *args)
 	if(pp > inum)
 		pp = inum;
 
+	/* Disassemble */
 	do {
 		disasm((void*)addr, pp);
 		addr += pp << 2;
 		pp = (pp > inum ? inum : pp);
 		inum -= pp;
 		if(inum) {
-			cprint_str("Press any key to continue...\n");
-			con_getc_b();
+			char ch;
+			cprint_str("Press any key to continue or 'q' to quit...\n");
+			ch = con_getc_b();
+			if(ch == 'q' || ch == 'Q') {
+				cprint_str("\n");
+				break;
+			}
 		}
 	} while(inum);
 
 	return 0;
 }
 COMMAND(d0dis, "dis", "dis <addr> <num> [per_page]", "disassemble instructions", cmd_dis);
+
+
+/* Print register names */
+static int cmd_regnames(struct cmd_args *args)
+{
+	int i;
+
+	cprint_str("General purpose registers:\n");
+	for(i = 0; i < DISASM_GPRS_NR; ++i) {
+		if(i) {
+			cprint_str(", ");
+			if(!(i%12))
+				cprint_str("\n");
+		}
+		cprint_str(disasm_gprs[i]);
+	}
+
+	cprint_str("\n");
+	cprint_str("\n");
+
+	cprint_str("Coprocessor 0 registers:\n");
+	for(i = 8; i < 16; ++i) {
+		if(i > 8)
+			cprint_str(", ");
+		cprint_str(disasm_c0rs[i]);
+	}
+	cprint_str("\n");
+
+	return 0;
+}
+COMMAND(d1regn, "regnames", "regnames", "print CPU register names", cmd_regnames);

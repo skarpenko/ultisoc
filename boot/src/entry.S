@@ -34,6 +34,13 @@
 .section .startup, "ax"
 .set noreorder
 .globl __reset
+.globl __bus_error_exception
+.globl __overflow_exception
+.globl __address_error_exception
+.globl __resvd_instr_exception
+.globl __break_exception
+.globl __syscall_exception
+.globl __hardware_interrupt
 /********************************* Reset Vector *******************************/
 __reset:
 	j __entry		/* Jump to program entry point */
