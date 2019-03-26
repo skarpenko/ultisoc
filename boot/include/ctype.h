@@ -24,39 +24,30 @@
  */
 
 /*
- * Char type
+ * Character handling functions
  */
 
 #ifndef _BOOTROM_CTYPE_H_
 #define _BOOTROM_CTYPE_H_
 
 
-static inline
-int isspace(int c)
-{
-	return (c == ' ' || c == '\t');
-}
+int isalnum(int c);
+int isalpha(int c);
+int iscntrl(int c);
+int isdigit(int c);
+int isgraph(int c);
+int islower(int c);
+int isprint(int c);
+int ispunct(int c);
+int isspace(int c);
+int isupper(int c);
+int isxdigit(int c);
+int isbdigit(int c);
+int isascii(int c);
+int toascii(int c);
 
-
-static inline
-int isdigit(int c)
-{
-	return (c >= '0' && c <= '9');
-}
-
-
-static inline
-int isxdigit(int c)
-{
-	return (isdigit(c) || ( c >= 'A' && c <= 'F') || ( c >= 'a' && c <= 'f'));
-}
-
-
-static inline
-int isbdigit(int c)
-{
-	return (c == '0' || c == '1');
-}
+unsigned char tolower(unsigned char c);
+unsigned char toupper(unsigned char c);
 
 
 #endif /* _BOOTROM_CTYPE_H_ */
