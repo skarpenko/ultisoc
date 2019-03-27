@@ -100,7 +100,9 @@ static int cmd_dis(struct cmd_args *args)
 
 	return 0;
 }
-COMMAND(d0dis, "dis", "dis <addr> <num> [per_page]", "disassemble instructions", cmd_dis);
+COMMAND(d0dis0, "disasm", "disasm <addr> <num> [per_page]", "disassemble instructions (aliases: 'dis', 'd')", cmd_dis);
+COMMAND(d0dis1, "dis", NULL, NULL, cmd_dis);
+COMMAND(d0dis2, "d", NULL, NULL, cmd_dis);
 
 
 /* Print register names */
