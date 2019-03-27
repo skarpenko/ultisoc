@@ -197,15 +197,15 @@ char *con_get_iobuf()
 		int ret = -1;
 
 		/* ESC sequence */
-		if(ch == 27) {						/* ESC */
+		if(ch == 27) {									/* ESC */
 			cd->nesc = 0;
 			cd->esc[cd->nesc++] = (char)ch;
 		} else if(cd->nesc) {
 			if(ch == '[' && cd->nesc == 1) {
 				cd->esc[cd->nesc++] = (char)ch;
-			} else if(ch == '3' && cd->nesc == 2) {
+			} else if(ch >= '1' && ch <= '9' && cd->nesc == 2) {
 				cd->esc[cd->nesc++] = (char)ch;
-			} else if(ch == '~' && cd->nesc == 3) {		/* DEL */
+			} else if(ch == '~' && cd->nesc == 3 && cd->esc[cd->nesc-1] == '3') {	/* DEL */
 				/* Send delete sequence */
 				cd->nesc = 0;
 				cd->esc[cd->nesc++] = 27;
@@ -217,13 +217,17 @@ char *con_get_iobuf()
 					reset_esc_seq();
 				else
 					flush_esc_seq();
-			} else if(ch == 'D') {				/* <--- */
+			} else if(ch == '~' && cd->nesc == 3 && cd->esc[cd->nesc-1] == '1') {	/* HOME */
+				reset_esc_seq();
+			} else if(ch == '~' && cd->nesc == 3 && cd->esc[cd->nesc-1] == '4') {	/* END */
+				reset_esc_seq();
+			} else if(ch == 'D') {							/* <--- */
 				cd->esc[cd->nesc++] = (char)ch;
 				if(buf_cur_l() < 0)
 					reset_esc_seq();
 				else
 					flush_esc_seq();
-			} else if(ch == 'C') {				/* ---> */
+			} else if(ch == 'C') {							/* ---> */
 				cd->esc[cd->nesc++] = (char)ch;
 				if(buf_cur_r() < 0)
 					reset_esc_seq();
@@ -232,7 +236,7 @@ char *con_get_iobuf()
 			} else {
 				reset_esc_seq();
 			}
-		} else if(ch == 127) {					/* BACKSPACE */
+		} else if(ch == 127) {								/* BACKSPACE */
 			ret = buf_bcksp();
 		} else {
 			ret = buf_insert((char)ch);
