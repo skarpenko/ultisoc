@@ -27,7 +27,10 @@ c-files :=		\
 	ctype.c		\
 	exc.c		\
 	reset.c		\
-	mem.c
+	mem.c		\
+	movc0.c		\
+	jump.c		\
+	leds.c
 
 
 # Assembly source files
