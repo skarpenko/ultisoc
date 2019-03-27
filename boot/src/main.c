@@ -138,7 +138,7 @@ static int cmd_help(struct cmd_args *args)
 
 	return 0;
 }
-COMMAND(a0help, "help", "help", "this help screen. Shortcut: 'h'", cmd_help);
+COMMAND(a0help, "help", "help", "this help screen (aliases: 'h')", cmd_help);
 COMMAND(a0help0, "h", NULL, NULL, cmd_help);	/* Shortcut */
 
 
