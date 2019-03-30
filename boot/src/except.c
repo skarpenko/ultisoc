@@ -30,9 +30,13 @@
 #include <stddef.h>
 #include <arch.h>
 #include <con.h>
+#include <disasm.h>
 
 
-#define CAUSE_BD_MASK	0x80000000
+#define DIS_INSTR_BEFORE	8	/* Number of instructions before faulting instruction to disassemble */
+#define DIS_INSTR_AFTER		8	/* Number of instructions after faulting instruction to disassemble */
+
+#define CAUSE_BD_MASK		0x80000000	/* Branch Delay mask */
 
 
 static const char *cause_str(u32 vec)
@@ -62,6 +66,8 @@ static const char *cause_str(u32 vec)
 
 void interrupt_entry(struct interrupt_frame *p)
 {
+	char ch;
+
 	cprint_str("\n*** EXCEPTION *\n");
 	cprint_str("Type: "); cprint_str(cause_str(p->vec)); cprint_str("\n");
 	cprint_str("Faulting instruction: 0x"); cprint_hex32(p->epc + (p->cause & CAUSE_BD_MASK ? 4 : 0)); cprint_str("\n");
@@ -92,4 +98,22 @@ void interrupt_entry(struct interrupt_frame *p)
 
 	cprint_str("***\n");
 
+	cprint_str("Press any key to restart or 'd' to disassemble...\n");
+	ch = con_getc_b();
+	if(ch == 'd' || ch == 'D') {
+		addr_t fault_addr = p->epc + (p->cause & CAUSE_BD_MASK ? 4 : 0);
+		addr_t addr = fault_addr;
+		addr -= DIS_INSTR_BEFORE * 4;
+		cprint_str("\nDisassembly:\n");
+		for( ; addr <= fault_addr + DIS_INSTR_AFTER * 4; addr += 4) {
+			u32 *instr = (u32*)addr;
+			cprint_str(addr == fault_addr ? "=>" : "  ");
+			cprint_hex32(addr); cprint_strf(":", 6);
+			cprint_hex32(*instr); cprint_strf("", 6);
+			disasm_instr(*instr, addr);
+			cprint_str("\n");
+		}
+		cprint_str("Press any key to restart...\n");
+		con_getc_b();
+	}
 }
