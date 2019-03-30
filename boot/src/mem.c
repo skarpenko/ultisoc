@@ -90,7 +90,7 @@ static int cmd_write(struct cmd_args *args)
 	unsigned addr;
 	unsigned value;
 
-	if(args->n < 2) {
+	if(args->n < 3) {
 		cprint_str("Insufficient arguments.\n");
 		return -1;
 	}
