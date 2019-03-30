@@ -171,6 +171,12 @@ __exception_entry:
 	jal interrupt_entry
 	nop
 
+	/* Clear PSR to make sure interrupts are disabled after return,
+	 * for example, in case if hardware interrupts were enabled and
+	 * triggered via console commands.
+	 */
+	mtc0 $zero, $PSR
+
 	/* No plans for recover - jump to reset */
 	j __reset
 	rfe
