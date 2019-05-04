@@ -24,44 +24,24 @@
  */
 
 /*
- * UltiSoC UART support
+ * CRC16 implementation according to CCITT standards
  */
 
-#include <arch.h>
-#include <soc_regs.h>
-#include <uart.h>
+#ifndef _BOOT_CRC16_CCITT_H_
+#define _BOOT_CRC16_CCITT_H_
+
+#include <stddef.h>
 
 
-void uart_init()
-{
-	u32 sys_freq = readl(USOC_CTRL_SYSFREQ);	/* UART frequency */
-	u32 divq, divr;
-
-	/* Set UART control reg */
-	writel((USOC_UART_CTRL_TX_IM | USOC_UART_CTRL_RX_IM), USOC_UART_CTRL);
-
-	/* Calculate divider for 115200bps */
-	divq = sys_freq / (16 * 115200);
-	divr = sys_freq % (16 * 115200);
-	if(divr > (16 * 115200 / 2)) ++divq;
-
-	/* Set divider */
-	writel(divq, USOC_UART_DIVD);
-}
+typedef unsigned short crc16_t;
 
 
-int uart_get_char()
-{
-	int ret = -1;
-	if(!(readl(USOC_UART_CTRL) & USOC_UART_CTRL_RX_FE))
-		ret = readl(USOC_UART_DATA) & 0xFF;
-	return ret;
-}
+/* Partial CRC update */
+crc16_t crc16_ccitt_update(const char *ptr, size_t n, crc16_t crc);
 
 
-void uart_put_char(char ch)
-{
-	while(readl(USOC_UART_CTRL) & USOC_UART_CTRL_TX_FF)
-		;
-	writel(ch, USOC_UART_DATA);
-}
+/* Compute CRC */
+crc16_t crc16_ccitt(const char *ptr, size_t n);
+
+
+#endif /* _BOOT_CRC16_CCITT_H_ */

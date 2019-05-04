@@ -30,7 +30,9 @@ c-files :=		\
 	mem.c		\
 	movc0.c		\
 	jump.c		\
-	leds.c
+	leds.c		\
+	crc16_ccitt.c	\
+	xmodem.c
 
 
 # Assembly source files

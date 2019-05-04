@@ -24,44 +24,27 @@
  */
 
 /*
- * UltiSoC UART support
+ * CRC16 implementation according to CCITT standards
  */
 
-#include <arch.h>
-#include <soc_regs.h>
-#include <uart.h>
+#include <crc16_ccitt.h>
 
 
-void uart_init()
+crc16_t crc16_ccitt_update(const char *ptr, size_t n, crc16_t crc)
 {
-	u32 sys_freq = readl(USOC_CTRL_SYSFREQ);	/* UART frequency */
-	u32 divq, divr;
-
-	/* Set UART control reg */
-	writel((USOC_UART_CTRL_TX_IM | USOC_UART_CTRL_RX_IM), USOC_UART_CTRL);
-
-	/* Calculate divider for 115200bps */
-	divq = sys_freq / (16 * 115200);
-	divr = sys_freq % (16 * 115200);
-	if(divr > (16 * 115200 / 2)) ++divq;
-
-	/* Set divider */
-	writel(divq, USOC_UART_DIVD);
+	size_t nn = n;
+	while(--nn < n) {
+		int i = 8;
+		crc ^= (crc16_t)*ptr++ << 8;
+		do {
+			crc = crc & 0x8000 ? crc << 1 ^ 0x1021 : crc << 1;
+		} while(--i);
+	}
+	return crc;
 }
 
 
-int uart_get_char()
+crc16_t crc16_ccitt(const char *ptr, size_t n)
 {
-	int ret = -1;
-	if(!(readl(USOC_UART_CTRL) & USOC_UART_CTRL_RX_FE))
-		ret = readl(USOC_UART_DATA) & 0xFF;
-	return ret;
-}
-
-
-void uart_put_char(char ch)
-{
-	while(readl(USOC_UART_CTRL) & USOC_UART_CTRL_TX_FF)
-		;
-	writel(ch, USOC_UART_DATA);
+	return crc16_ccitt_update(ptr, n, 0);
 }
