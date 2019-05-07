@@ -71,12 +71,12 @@ static int xm_sync(struct xm_recvr *xmr, char sync_ch, unsigned retries, unsigne
 			continue;
 		}
 
-		if(rc == CAN) {			/* CAN received. Set state and wait for second CAN */
+		if(rc == CAN) {		/* CAN received. Set state and wait for second CAN */
 			syn = 0;
 			can = 1;
 			eot = 0;
 			continue;
-		} else if(rc == EOT) {		/* EOT received. Send NAK and wait for second EOT. */
+		} else if(rc == EOT) {	/* EOT received. Send NAK and wait for second EOT. */
 			syn = NAK;
 			can = 0;
 			eot = 1;
@@ -104,10 +104,10 @@ static int xm_sync(struct xm_recvr *xmr, char sync_ch, unsigned retries, unsigne
 				continue;
 			}
 
-			if(blk != ~nblk) {			/* Probably erroneous header start */
+			if(blk != ~nblk) {				/* Probably erroneous header start */
 				syn = 0;
 				continue;
-			} else if(blk == xmr->blk_no) {		/* Re-transmission of already received block - skip */
+			} else if(blk == xmr->blk_no) {			/* Re-transmission of already received block - skip */
 				unsigned i;
 				unsigned n = (rc == SOX ? 1026 : 130);
 				for(i = 0; i < n; ++i) {
@@ -119,11 +119,11 @@ static int xm_sync(struct xm_recvr *xmr, char sync_ch, unsigned retries, unsigne
 					--retries;
 					continue;
 				}
-			} else if(xmr->blk_no != (blk-1)) {	/* Sequence error. Send cancellation. */
+			} else if(xmr->blk_no != (char)(blk-1)) {	/* Sequence error. Send cancellation. */
 				xmr->outb(xmr, CAN);
 				xmr->outb(xmr, CAN);
 				return XM_ERR_OOSEQ;
-			} else {				/* Valid header received. */
+			} else {					/* Valid header received. */
 				xmr->cblk_no = blk;
 				break;
 			}
