@@ -145,18 +145,19 @@ module de0_nano_soc_baseline(
 );
 
 reg [7:0]	cntr;
-reg		nrst;
+reg		nrst_r;
+wire		nrst = nrst_r & KEY[1];	/* KEY[1] is a reset button */
 
 
 always @(posedge CLOCK_50)
 begin
 	if(cntr == 100)
 	begin
-		nrst <= 1'b1;
+		nrst_r <= 1'b1;
 	end
 	else
 	begin
-		nrst <= 1'b0;
+		nrst_r <= 1'b0;
 		cntr <= cntr + 1'b1;
 	end
 end
