@@ -34,6 +34,7 @@
 #include <con.h>
 #include <str.h>
 #include <soc_info.h>
+#include <soc_regs.h>
 #include <cmd.h>
 #include <cmd_types.h>
 
@@ -47,6 +48,11 @@ void boot_entry()
 	DEFINE_GLOBAL_DATA(global_data);	/* BootROM data */
 
 	memset(&global_data, 0, sizeof(global_data));
+
+	/* Init peripherals */
+	writel(0, USOC_INTCTL_MASK);	/* Mask all interrupt lines */
+	writel(0, USOC_ITIMER_CTRL);	/* Disable timer */
+	writel(0, USOC_CTRL_LED);	/* Turn off LEDs */
 
 	/* Init serial console */
 	uart_init();
