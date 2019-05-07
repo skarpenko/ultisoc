@@ -32,7 +32,8 @@ c-files :=		\
 	jump.c		\
 	leds.c		\
 	crc16_ccitt.c	\
-	xmodem.c
+	xmodem.c	\
+	xm_load.c
 
 
 # Assembly source files
