@@ -63,7 +63,7 @@ module tb_soc_top();
 		clk = 1;
 		nrst = 0;
 		CTS = 0;
-		RxD = 0;
+		RxD = 1;
 		#(10*PCLK) nrst = 1;
 	end
 
