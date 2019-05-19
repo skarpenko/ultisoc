@@ -45,10 +45,13 @@ wire		TxD;
 reg		RxD;
 
 
-always @(negedge nrst)
+always @(posedge clk or negedge nrst)
 begin
-	CTS <= 1'b0;
-	RxD <= 1'b0;
+	if(!nrst)
+	begin
+		CTS <= 1'b0;
+		RxD <= 1'b1;
+	end;
 end
 
 
