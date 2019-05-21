@@ -46,6 +46,7 @@ unsigned con_get_flags();
 /* Console flags */
 #define CON_FLAGS_NONE		(0x0)	/* No flags */
 #define CON_FLAGS_ECHO		(0X1)	/* Echo */
+#define CON_FLAGS_LFCR		(0X2)	/* Implicit CR in every LF  */
 
 
 /*

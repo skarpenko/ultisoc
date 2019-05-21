@@ -58,7 +58,8 @@ void boot_entry()
 	uart_init();
 	con_init();
 
-	con_set_flags(CON_FLAGS_ECHO);	/* Enable echo by default */
+	con_set_flags(con_get_flags() | CON_FLAGS_ECHO);	/* Enable echo by default */
+	con_set_flags(con_get_flags() | CON_FLAGS_LFCR);	/* Enable CR after LF by default */
 
 	/* Welcome messages */
 	print_welcome();
@@ -92,7 +93,7 @@ static void print_welcome()
 		"|__)(_)(_)|_| \\ \\__/|  |\n";
 
 	con_puts(welcome);
-	con_puts("(Build: " __TIMESTAMP__ ")\n");
+	con_puts("(Build: " __DATE__ " " __TIME__ ")\n");
 }
 
 
@@ -174,6 +175,34 @@ static int cmd_echo(struct cmd_args *args)
 	return 0;
 }
 COMMAND(a1echo, "echo", "echo [on|off]", "console echo control", cmd_echo);
+
+
+/* Lfcr command */
+static int cmd_lfcr(struct cmd_args *args)
+{
+	int e;
+
+	if(args->n != 1) {
+		if(!strcmp(args->args[1], "on")) {
+			con_set_flags(con_get_flags() | CON_FLAGS_LFCR);
+		} else if(!strcmp(args->args[1], "off")) {
+			con_set_flags(con_get_flags() & ~CON_FLAGS_LFCR);
+		} else {
+			cprint_str("Unknown argument: ");
+			cprint_str(args->args[1]);
+			cprint_str("\n");
+			return -1;
+		}
+	}
+
+	e = (con_get_flags() & CON_FLAGS_LFCR);
+	cprint_str("LFCR mode is ");
+	cprint_str(e ? "on" : "off");
+	cprint_str("\n");
+
+	return 0;
+}
+COMMAND(a1lfcr, "lfcr", "lfcr [on|off]", "line ending mode", cmd_lfcr);
 
 
 /* Print SoC info  */

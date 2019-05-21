@@ -77,7 +77,7 @@ int con_getc_ex(unsigned flags)
 void con_putc(char ch)
 {
 	uart_put_char(ch);
-	if(ch == 0xA)
+	if((ch == 0xA) && (con_get_flags() & CON_FLAGS_LFCR))
 		uart_put_char(0xD);
 }
 
