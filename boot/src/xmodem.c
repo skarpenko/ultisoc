@@ -213,7 +213,8 @@ int xm_recvr_start_rx(struct xm_recvr *xmr, void *buf)
 			if(cbr) {
 				xmr->outb(xmr, CAN);
 				xmr->outb(xmr, CAN);
-				return cbr;
+				r = cbr;
+				break;
 			}
 		}
 
