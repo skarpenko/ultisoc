@@ -35,6 +35,9 @@
 #include <con.h>
 #include <cmd_types.h>
 #include <xmodem.h>
+#include <elf_stream.h>
+#include <soc_info.h>
+#include <global.h>
 
 
 
@@ -106,3 +109,83 @@ static int cmd_xmodem(struct cmd_args *args)
 	return 0;
 }
 COMMAND(x0xmod, "xmodem", "xmodem <addr>", "load data over XModem protocol", cmd_xmodem);
+
+
+/* Called from ELF stream to set new destination buffer address */
+static void set_buf_cb(void *udata, unsigned long addr)
+{
+	struct xm_recvr *xmr = (struct xm_recvr*)udata;
+	xm_recvr_setbuf(xmr, (void*)addr);
+}
+
+
+/* Called from XModem for each received block */
+int xmodem_cb(struct xm_recvr *xmr, void *buf, size_t size)
+{
+	struct elf_stream *es = (struct elf_stream*)xm_recvr_getudata(xmr);
+	return elf_stream_parse(es, buf, size);
+}
+
+
+/* Load MIPS-I ELF using XModem protocol */
+static int cmd_xelf(struct cmd_args *args)
+{
+	struct xm_recvr xmr;
+	struct elf_stream es;
+	int res;
+
+	/* Prepare XModem */
+	xm_recvr_init(&xmr, outbyte, inbyte);
+	xm_recvr_setucb(&xmr, xmodem_cb);
+	xm_recvr_setudata(&xmr, &es);
+
+	/* Prepare ELF loader */
+	elf_stream_init(&es, set_buf_cb, &xmr);
+
+	cprint_str("XModem: [ELF] -> ");
+
+	/* Start receiver */
+	res = xm_recvr_start_rx(&xmr, (void*)soc_ram_base());
+	switch(res) {
+		case XM_ERR_CAN:
+			cprint_str("\nTransmission canceled.\n");
+			break;
+		case XM_ERR_OOSEQ:
+			cprint_str("\nSequence error.\n");
+			break;
+		case XM_ERR_RETR:
+			cprint_str("\nMaximum retries reached.\n");
+			break;
+		case ELFS_LOADED:
+			G()->elf_entry = es.entry;	/* Set ELF entry point */
+			cprint_str("\nELF loaded.\n");
+			break;
+		case ELFS_INV_FILE_FMT:
+			cprint_str("\nInvalid ELF format.\n");
+			break;
+		case ELFS_INV_CLASS:
+			cprint_str("\nInvalid ELF class.\n");
+			break;
+		case ELFS_INV_DATA_ENC:
+			cprint_str("\nInvalid data encoding.\n");
+			break;
+		case ELFS_INV_VERSION:
+			cprint_str("\nInvalid ELF version.\n");
+			break;
+		case ELFS_INV_ARCH_TYPE:
+			cprint_str("\nInvalid target architecture.\n");
+			break;
+		case ELFS_INV_OBJ_TYPE:
+			cprint_str("\nInvalid ELF object type.\n");
+			break;
+		case ELFS_INV_LAYOUT:
+			cprint_str("\nInvalid ELF object layout.\n");
+			break;
+		default:
+			cprint_str("\nELF not loaded.\n");
+			break;
+	}
+
+	return 0;
+}
+COMMAND(x0xelf, "xelf", "xelf", "load ELF binary over XModem protocol", cmd_xelf);

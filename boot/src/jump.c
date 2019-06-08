@@ -24,13 +24,14 @@
  */
 
 /*
- * Jump to address command
+ * Jump to address commands
  */
 
 #include <stddef.h>
 #include <con.h>
 #include <str.h>
 #include <cmd_types.h>
+#include <global.h>
 
 
 /* Jump */
@@ -66,3 +67,30 @@ static int cmd_jmp(struct cmd_args *args)
 	return 0;
 }
 COMMAND(j0jmp, "jmp", "jmp <addr>", "jump to address", cmd_jmp);
+
+
+/* Run */
+static int cmd_run(struct cmd_args *args)
+{
+	unsigned long addr = G()->elf_entry;
+
+	if(!addr) {
+		cprint_str("ELF binary is not loaded.\n");
+		return -1;
+	}
+
+	/* Do jump */
+	__asm__ __volatile__ (
+		".set push       ;"
+		".set noreorder  ;"
+		"jalr %0         ;"
+		"nop             ;"
+		".set pop        ;"
+		:
+		: "r" (addr)
+		:
+	);
+
+	return 0;
+}
+COMMAND(j0run, "run", "run", "run loaded ELF binary", cmd_run);

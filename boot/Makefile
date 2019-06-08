@@ -33,7 +33,8 @@ c-files :=		\
 	leds.c		\
 	crc16_ccitt.c	\
 	xmodem.c	\
-	xm_load.c
+	xm_load.c	\
+	elf_stream.c
 
 
 # Assembly source files

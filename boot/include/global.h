@@ -49,6 +49,7 @@ struct console_data {
 /* BootROM data */
 struct global {
 	struct console_data con;
+	unsigned long elf_entry;	/* Entry point of loaded ELF */
 };
 
 
